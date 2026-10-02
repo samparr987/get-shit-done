@@ -15,7 +15,7 @@
   <tr><th>Date</th><th>Session</th><th>Group</th><th class="num">Metres</th><th class="hide-sm">Notes</th><th></th></tr>
   <% for (const s of rows) { %>
   <tr><td class="nowrap"><%= fmtDate(s.date) %></td><td><a href="/sessions/<%= s.id %>"><%= s.slot %></a></td><td><%= s.group_name %> <% if (s.generated) { %><span class="band none" title="Generated draft">gen</span><% } %></td>
-    <td class="num"><%= s.total_m || '' %></td><td class="hide-sm small"><%= s.notes || '' %></td><td class="nowrap"><a class="small" href="/sessions/<%= s.id %>/print">print</a></td></tr>
+    <td class="num"><%= s.total_m || '' %></td><td class="hide-sm small"><%= s.notes || '' %></td><td class="nowrap"><a class="small" href="/sessions/<%= s.id %>/print"><%= locals.isArtifact ? 'clean view' : 'print' %></a></td></tr>
   <% } %>
   <% if (!rows.length) { %><tr><td colspan="6" class="muted">No sessions this week.</td></tr><% } %>
 </table></div>

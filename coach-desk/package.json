@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/server.js",
     "start:lan": "node src/server.js --lan",
-    "test": "node --test"
+    "test": "node --test",
+    "build:artifact": "node artifact/build.js"
   },
   "engines": {
     "node": ">=18"
@@ -20,5 +21,10 @@
     "express": "^5.2.1",
     "multer": "^2.4.0",
     "pdfkit": "^0.20.2"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "esbuild": "^0.28.2",
+    "sql.js": "^1.10.3"
   }
 }

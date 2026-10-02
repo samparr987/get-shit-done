@@ -13,7 +13,7 @@
 <div class="actions">
   <span class="band green"><%= counts.green %> qualified</span><span class="band amber"><%= counts.amber %> amber</span><span class="band red"><%= counts.red %> red</span>
   <%- include('partials/csv') %>
-  <a class="btn secondary small" href="/county/report.pdf<%= web.qs({ group: query.group }) %>">PDF report per swimmer<%= query.group ? ` (${query.group})` : '' %></a>
+  <% if (!locals.isArtifact) { %><a class="btn secondary small" href="/county/report.pdf<%= web.qs({ group: query.group }) %>">PDF report per swimmer<%= query.group ? ` (${query.group})` : '' %></a><% } %>
   <a class="btn secondary small" href="/county/times">Qualifying times</a><a class="btn secondary small" href="/conversions">LC→SC tables</a>
 </div>
 <div class="table-wrap"><table>

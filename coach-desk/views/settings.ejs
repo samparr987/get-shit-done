@@ -11,9 +11,15 @@
   </div>
   <div class="actions"><button>Save</button></div>
 </form>
+<% if (locals.isArtifact) { %>
+<div class="card small">
+  <p><strong>Where your data lives:</strong> only in this browser, on this device. Nothing you type is sent anywhere. Clearing site data or using a private window loses it, so <a href="/backup">copy a backup</a> after big changes.</p>
+</div>
+<% } else { %>
 <div class="card small">
   <p><strong>Data:</strong> everything is in one file, <code>data/coach-desk.sqlite</code>, on this PC. Back it up by copying that file while Coach Desk is stopped.</p>
   <p><strong>LC→SC:</strong> active table — <a href="/conversions">manage conversion tables</a>.</p>
   <p><strong>Phone access:</strong> start with <code>npm run start:lan</code> and open the address it prints on a phone on the same Wi-Fi. There's no login, so only do this on your home network.</p>
 </div>
+<% } %>
 <%- include('partials/foot') %>

@@ -5,7 +5,7 @@ const calc = require('./calc');
 const web = require('./web');
 const { getSettings } = require('./db');
 
-function createApp(db) {
+function createApp(db, opts = {}) {
   const app = express();
   app.set('view engine', 'ejs');
   app.set('query parser', 'extended');
@@ -27,9 +27,14 @@ function createApp(db) {
   });
 
   const ctx = { db };
-  for (const m of ['home', 'swimmers', 'times', 'county', 'plan', 'sessions', 'galas', 'library', 'imports', 'settings']) {
-    require(`./routes/${m}`)(app, ctx);
-  }
+  // Listed explicitly (not a dynamic require) so the browser build can bundle them.
+  const routes = [
+    require('./routes/home'), require('./routes/swimmers'), require('./routes/times'), require('./routes/county'), require('./routes/plan'),
+    require('./routes/sessions'), require('./routes/galas'), require('./routes/library'), require('./routes/imports'), require('./routes/settings'),
+  ];
+  for (const r of routes) r(app, ctx);
+
+  if (opts.extend) opts.extend(app, ctx);
 
   app.use((req, res) => web.notFound(res));
   app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars

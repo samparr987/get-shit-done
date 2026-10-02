@@ -1,0 +1,35 @@
+<%- include('partials/head') %>
+<h1>Backup</h1>
+<div class="card small">
+  <p>Coach Desk keeps everything in <strong>this browser, on this device</strong>. Nothing is sent to Claude or any server. That also means clearing site data, a private window or another device starts empty, so copy a backup after big changes.</p>
+  <p>This browser now holds <%= counts.swimmers %> swimmers, <%= counts.times %> times, <%= counts.sessions %> sessions, <%= counts.drills %> drills and <%= counts.entries %> gala entries.
+    <% if (!storageOk) { %><br><strong style="color:var(--red)">This browser is blocking storage, so changes will be lost when you close the page.</strong><% } %></p>
+</div>
+
+<h2>Copy a backup</h2>
+<% if (text) { %>
+  <div class="card">
+    <p class="small muted">Paste this into a note or a text file and keep it somewhere safe. To restore, paste it back below.</p>
+    <textarea id="backup-text" readonly style="min-height:140px;font-family:ui-monospace,Consolas,monospace;font-size:12px"><%= text %></textarea>
+    <div class="actions"><button type="button" data-copy="backup-text">Copy</button><span class="small muted"><%= Math.round(text.length / 1024) %> KB of text</span></div>
+  </div>
+<% } else { %>
+  <div class="actions"><a class="btn" href="/backup?show=1">Make backup text</a></div>
+<% } %>
+
+<h2>Restore</h2>
+<form method="post" action="/backup/restore" enctype="multipart/form-data" class="card" data-confirm="Replace everything in this browser with the backup?">
+  <label class="field"><span>Paste backup text</span><textarea name="text" id="restore-text" style="font-family:ui-monospace,Consolas,monospace;font-size:12px"></textarea></label>
+  <label class="field"><span>…or choose a <code>coach-desk.sqlite</code> file (from the PC version's <code>data</code> folder, copied while it was stopped)</span><input type="file" name="file" id="restore-file" accept=".sqlite,.db"></label>
+  <div class="actions"><button>Restore</button><span class="small muted">This replaces everything currently in this browser.</span></div>
+</form>
+
+<h2>Start fresh</h2>
+<div class="card">
+  <p class="small">Removes everything in this browser, including the example swimmers, and starts with an empty desk (the Lancashire 2027 times, galas, technique points and starter library are put back).</p>
+  <div class="actions">
+    <form method="post" action="/backup/fresh" class="inline" data-confirm="Delete everything in this browser?"><button class="danger">Start fresh</button></form>
+    <form method="post" action="/backup/fresh" class="inline" data-confirm="Replace everything with the example data?"><input type="hidden" name="examples" value="1"><button class="secondary">Reload example data</button></form>
+  </div>
+</div>
+<%- include('partials/foot') %>

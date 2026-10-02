@@ -1,2 +1,4 @@
 node_modules/
 data/
+artifact/.build/
+artifact/dist/

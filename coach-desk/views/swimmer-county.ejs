@@ -13,7 +13,7 @@
 </form>
 <% if (opts.age && Number(opts.age) !== calc.ageOn(sw.dob, a.info.ageAt)) { %><div class="warn">Age overridden to <%= opts.age %> — <%= sw.first_name %>'s actual age at <%= fmtDate(a.info.ageAt) %> is <%= calc.ageOn(sw.dob, a.info.ageAt) %>.</div><% } %>
 <div class="actions">
-  <a class="btn" href="/swimmers/<%= sw.id %>/county.pdf<%= web.qs(query, { msg: '' }) %>">Download PDF</a>
+  <% if (!locals.isArtifact) { %><a class="btn" href="/swimmers/<%= sw.id %>/county.pdf<%= web.qs(query, { msg: '' }) %>">Download PDF</a><% } %>
   <a class="btn secondary" href="/swimmers/<%= sw.id %>/paste">Paste latest from swimmingresults</a>
   <%- include('partials/csv') %>
   <a class="btn secondary" href="/swimmers/<%= sw.id %>">← <%= sw.first_name %></a>

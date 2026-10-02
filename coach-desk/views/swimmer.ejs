@@ -14,7 +14,7 @@
 <div class="actions">
   <a class="btn" href="/times/new?swimmer=<%= sw.id %>">+ Add time</a>
   <a class="btn secondary" href="/swimmers/<%= sw.id %>/county">County analysis</a>
-  <a class="btn secondary" href="/swimmers/<%= sw.id %>/county.pdf">County PDF</a>
+  <% if (!locals.isArtifact) { %><a class="btn secondary" href="/swimmers/<%= sw.id %>/county.pdf">County PDF</a><% } %>
   <a class="btn secondary" href="/swimmers/<%= sw.id %>/paste">Paste from swimmingresults</a>
   <% if (srUrl) { %><a class="btn secondary" href="<%= srUrl %>" target="_blank" rel="noopener">swimmingresults.org ↗</a><% } %>
   <a class="btn secondary" href="/swimmers/<%= sw.id %>/edit">Edit</a>

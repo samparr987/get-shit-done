@@ -5,7 +5,7 @@
   <% if (sess.total_m) { %> · <strong><%= sess.total_m %>m</strong><% } %>
   <% if (sess.generated) { %> · <span class="band none">generated</span><% } %>
 </div>
-<div class="actions"><a class="btn" href="/sessions/<%= sess.id %>/edit">Edit</a><a class="btn secondary" href="/sessions/<%= sess.id %>/print">Print view</a>
+<div class="actions"><a class="btn" href="/sessions/<%= sess.id %>/edit">Edit</a><a class="btn secondary" href="/sessions/<%= sess.id %>/print"><%= locals.isArtifact ? 'Clean view' : 'Print view' %></a>
   <a class="btn secondary" href="/sessions/new?date=<%= calc.addDays(sess.date, 7) %>&slot=<%= encodeURIComponent(sess.slot) %>&group_name=<%= encodeURIComponent(sess.group_name) %>&copy=1">Copy to next week</a>
   <a class="btn secondary" href="/sessions?week=<%= sess.week_no || '' %>">Week list</a></div>
 <pre class="sets"><%= sess.sets || '(no sets entered)' %></pre>
