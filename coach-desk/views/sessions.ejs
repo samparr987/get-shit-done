@@ -1,0 +1,29 @@
+<%- include('partials/head') %>
+<h1>Sessions — week <%= week %> <span class="muted small"><%= fmtDate(start) %> – <%= fmtDate(calc.addDays(start, 6)) %></span></h1>
+<div class="actions">
+  <a class="btn secondary small" href="/sessions<%= web.qs({ week: week - 1, group: query.group }) %>">← Week <%= week - 1 %></a>
+  <% if (week !== currentWeek) { %><a class="btn secondary small" href="/sessions">This week</a><% } %>
+  <a class="btn secondary small" href="/sessions<%= web.qs({ week: week + 1, group: query.group }) %>">Week <%= week + 1 %> →</a>
+  <a class="btn small" href="/sessions/new?date=<%= todayIso >= start && todayIso <= calc.addDays(start, 6) ? todayIso : start %>">+ New session</a>
+  <%- include('partials/csv') %>
+</div>
+<% if (plan) { %><div class="card small"><strong>Plan:</strong> <%= [plan.mesocycle, plan.focus, plan.drills && `drills ${plan.drills}`].filter(Boolean).join(' · ') || 'nothing entered' %>
+  <% if (plan.holiday) { %><span class="band amber">holiday</span><% } %> · <a href="/plan#current">edit plan</a></div><% } %>
+<form class="filters" method="get"><input type="hidden" name="week" value="<%= week %>">
+  <label>Group<select name="group"><option value="">All</option><% for (const g of calc.GROUPS) { %><option <%= query.group === g ? 'selected' : '' %>><%= g %></option><% } %></select></label><button class="small">Filter</button></form>
+<div class="table-wrap"><table>
+  <tr><th>Date</th><th>Session</th><th>Group</th><th class="num">Metres</th><th class="hide-sm">Notes</th><th></th></tr>
+  <% for (const s of rows) { %>
+  <tr><td class="nowrap"><%= fmtDate(s.date) %></td><td><a href="/sessions/<%= s.id %>"><%= s.slot %></a></td><td><%= s.group_name %> <% if (s.generated) { %><span class="band none" title="Generated draft">gen</span><% } %></td>
+    <td class="num"><%= s.total_m || '' %></td><td class="hide-sm small"><%= s.notes || '' %></td><td class="nowrap"><a class="small" href="/sessions/<%= s.id %>/print"><%= locals.isArtifact ? 'clean view' : 'print' %></a></td></tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="6" class="muted">No sessions this week.</td></tr><% } %>
+</table></div>
+<form method="post" action="/sessions/generate-week" class="card">
+  <strong>Generate the whole week</strong> <span class="muted small">— draft sessions from the annual plan for every group/session in your <a href="/library#shapes">session sizes</a>. Existing sessions are left alone.</span>
+  <input type="hidden" name="date" value="<%= start %>">
+  <div class="checks" style="margin:8px 0"><% for (const g of shapes) { %><label><input type="checkbox" name="groups" value="<%= g %>"> <%= g %></label><% } %></div>
+  <button class="small">Generate week <%= week %></button>
+</form>
+<p class="small"><a href="/sessions?all=1&format=csv">Export every session (CSV)</a></p>
+<%- include('partials/foot') %>

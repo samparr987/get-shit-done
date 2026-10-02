@@ -1,0 +1,20 @@
+<%- include('partials/head') %>
+<h1>Times</h1>
+<form class="filters" method="get">
+  <label>Swimmer<select name="swimmer"><option value="">All</option><% for (const s of swimmers) { %><option value="<%= s.id %>" <%= String(query.swimmer) === String(s.id) ? 'selected' : '' %>><%= s.last_name %>, <%= s.first_name %></option><% } %></select></label>
+  <label>Event<select name="event"><option value="">All</option><% for (const e of calc.EVENTS) { %><option value="<%= e.key %>" <%= query.event === e.key ? 'selected' : '' %>><%= e.name %></option><% } %></select></label>
+  <label>Course<select name="course"><option value="">Both</option><option <%= query.course === 'SC' ? 'selected' : '' %>>SC</option><option <%= query.course === 'LC' ? 'selected' : '' %>>LC</option></select></label>
+  <label>Meet<input type="search" name="meet" value="<%= query.meet || '' %>"></label>
+  <button class="small">Filter</button>
+</form>
+<div class="actions"><a class="btn" href="/times/new">+ Add a time</a><a class="btn secondary" href="/import/times">Import results CSV</a><%- include('partials/csv') %></div>
+<div class="table-wrap"><table>
+  <tr><th>Date</th><th>Swimmer</th><th>Event</th><th>Course</th><th class="num">Time</th><th class="hide-sm">Meet</th><th></th></tr>
+  <% for (const t of rows) { %>
+  <tr><td class="nowrap"><%= fmtDate(t.swum_on) %></td><td><a href="/swimmers/<%= t.swimmer_id %>"><%= t.first_name %> <%= t.last_name %></a></td><td><%= eventName(t.event) %></td><td><%= t.course %></td>
+    <td class="num"><%= fmtTime(t.time_hs) %></td><td class="hide-sm"><%= t.meet || '' %></td><td><a class="small" href="/times/<%= t.id %>/edit">edit</a></td></tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="7" class="muted">No times found.</td></tr><% } %>
+</table></div>
+<% if (rows.length === 500) { %><p class="small muted">Showing the latest 500 — filter or export for more.</p><% } %>
+<%- include('partials/foot') %>

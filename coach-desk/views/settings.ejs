@@ -1,0 +1,25 @@
+<%- include('partials/head') %>
+<h1>Settings</h1>
+<% if (errors.length) { %><div class="errors"><%= errors.join(' ') %></div><% } %>
+<form method="post" class="card">
+  <div class="form-grid">
+    <label><span>Season start (Week 1 Monday)</span><input type="date" name="season_start" value="<%= settings.season_start %>"></label>
+    <label><span>Counties week</span><input type="number" name="counties_week" value="<%= settings.counties_week %>" min="1"></label>
+    <label><span>County season label</span><input type="text" name="county_season" value="<%= settings.county_season %>"></label>
+    <label><span>County age-at date</span><input type="date" name="county_age_at" value="<%= settings.county_age_at %>"></label>
+    <label><span>Amber threshold (seconds)</span><input type="number" step="0.1" name="amber_threshold_s" value="<%= settings.amber_threshold_s %>"></label>
+  </div>
+  <div class="actions"><button>Save</button></div>
+</form>
+<% if (locals.isArtifact) { %>
+<div class="card small">
+  <p><strong>Where your data lives:</strong> only in this browser, on this device. Nothing you type is sent anywhere. Clearing site data or using a private window loses it, so <a href="/backup">copy a backup</a> after big changes.</p>
+</div>
+<% } else { %>
+<div class="card small">
+  <p><strong>Data:</strong> everything is in one file, <code>data/coach-desk.sqlite</code>, on this PC. Back it up by copying that file while Coach Desk is stopped.</p>
+  <p><strong>LC→SC:</strong> active table — <a href="/conversions">manage conversion tables</a>.</p>
+  <p><strong>Phone access:</strong> start with <code>npm run start:lan</code> and open the address it prints on a phone on the same Wi-Fi. There's no login, so only do this on your home network.</p>
+</div>
+<% } %>
+<%- include('partials/foot') %>

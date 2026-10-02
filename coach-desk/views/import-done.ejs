@@ -1,0 +1,12 @@
+<%- include('partials/head') %>
+<h1>Import finished</h1>
+<div class="card">
+  <p><strong><%= summary.added %></strong> added · <strong><%= summary.updated %></strong> updated · <strong><%= summary.skipped.length %></strong> skipped</p>
+  <% if (key === 'swimmers') { %><p class="small muted">Groups you'd set by hand (🔒) were left alone; the export's group is recorded alongside for reference.</p><% } %>
+</div>
+<% if (summary.skipped.length) { %>
+<div class="table-wrap"><table><tr><th>Row</th><th>Why skipped</th></tr>
+  <% for (const s of summary.skipped) { %><tr><td><%= s.row %></td><td><%= s.reason %></td></tr><% } %></table></div>
+<% } %>
+<div class="actions"><a class="btn" href="<%= { swimmers: '/swimmers', times: '/times', county: '/county/times', plan: '/plan', drills: '/drills', technique: '/technique' }[key] %>">View <%= key %></a><a class="btn secondary" href="/import">Import something else</a></div>
+<%- include('partials/foot') %>

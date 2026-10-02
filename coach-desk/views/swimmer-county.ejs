@@ -1,0 +1,45 @@
+<%- include('partials/head') %>
+<% const rows = a.rows.filter((r) => r.gap); const q = rows.filter((r) => r.band === 'green');
+   const near = rows.filter((r) => r.band !== 'green').sort((x, y) => x.gap.gapHs - y.gap.gapHs);
+   const grp = `${sw.sex === 'F' ? 'Girls' : 'Boys'} ${a.age}`; const meta = a.info.meta || {};
+   const margin = (r) => { const d = -r.gap.gapHs / 100; return (d >= 0 ? '+' : '-') + Math.abs(d).toFixed(2); }; %>
+<h1><%= name(sw) %> — County Qualifying Analysis</h1>
+<p class="muted"><%= meta.authority || 'County' %> <%= a.info.season %> · <%= grp %> · Fastest route (best of SC or LC-converted)</p>
+<form class="filters" method="get">
+  <label>Season<select name="season"><% for (const s of seasons) { %><option <%= s === a.info.season ? 'selected' : '' %>><%= s %></option><% } %></select></label>
+  <label>Age group<input type="number" name="age" value="<%= opts.age || '' %>" placeholder="<%= a.age %>" min="8" max="99" style="width:90px"></label>
+  <label>Mark new swims since<input type="date" name="since" value="<%= opts.since || '' %>"></label>
+  <button class="small">Update</button>
+</form>
+<% if (opts.age && Number(opts.age) !== calc.ageOn(sw.dob, a.info.ageAt)) { %><div class="warn">Age overridden to <%= opts.age %> — <%= sw.first_name %>'s actual age at <%= fmtDate(a.info.ageAt) %> is <%= calc.ageOn(sw.dob, a.info.ageAt) %>.</div><% } %>
+<div class="actions">
+  <% if (!locals.isArtifact) { %><a class="btn" href="/swimmers/<%= sw.id %>/county.pdf<%= web.qs(query, { msg: '' }) %>">Download PDF</a><% } %>
+  <a class="btn secondary" href="/swimmers/<%= sw.id %>/paste">Paste latest from swimmingresults</a>
+  <%- include('partials/csv') %>
+  <a class="btn secondary" href="/swimmers/<%= sw.id %>">← <%= sw.first_name %></a>
+</div>
+<p class="small muted">Assessed against the <%= meta.authority || 'county' %> <%= a.info.season %> (<%= grp %>) <%= meta.course === 'LC' ? 'long' : 'short' %> course consideration times, age as at <%= fmtDate(a.info.ageAt) %>. Each event uses the swimmer's fastest available time — the better of the short course best or the long course best converted to short course.</p>
+<div class="table-wrap"><table>
+  <tr><th>Event</th><th class="num">Fastest</th><th>Source</th><th class="num"><%= grp %> QT</th><th class="num">Margin</th><th>Status</th></tr>
+  <% for (const r of rows) { %>
+  <tr class="<%= r.band === 'green' || r.band === 'amber' ? r.band : '' %>">
+    <td><%= r.name %><%= r.updated ? ' ★' : '' %></td><td class="num"><%= fmtTime(r.best.time) %></td>
+    <td><%= r.best.source === 'SC' ? 'SC' : r.best.official ? 'LC→SC' : 'LC→SC*' %></td><td class="num"><%= fmtTime(r.qt) %></td>
+    <td class="num" style="color:<%= r.band === 'green' ? 'inherit' : 'var(--red)' %>"><%= margin(r) %></td>
+    <td><% if (r.band === 'green') { %><strong style="color:var(--green)">QUALIFIED</strong><% } else { %><span class="band <%= r.band %>"><%= r.band %></span><% } %></td></tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="6" class="muted">No comparable events — no times yet for events offered to <%= grp %>.</td></tr><% } %>
+</table></div>
+<div class="card">
+  <h3 style="margin-top:0">Summary</h3>
+  <% if (q.length) { %><p><strong>Qualified — <%= q.length %> event<%= q.length !== 1 ? 's' : '' %>:</strong> <%= q.map((r) => r.name).join(', ') %>.</p>
+  <% } else { %><p><strong>No events reach the standard yet.</strong> This is a baseline and target sheet — see the closest gaps below.</p><% } %>
+  <% if (near.length) { %><p><strong>Closest to qualifying:</strong> <%= near.slice(0, 4).map((r) => `${r.name} (${margin(r)})`).join(', ') %>.</p><% } %>
+  <% const tight = rows.filter((r) => Math.abs(r.gap.gapHs) < 20); if (tight.length) { %><p class="small" style="color:var(--amber)">Sub-0.20 s margin — check the QT digit on the official sheet: <%= tight.map((r) => r.name).join(', ') %>.</p><% } %>
+  <% const stale = rows.filter((r) => calc.daysBetween(r.best.row.swum_on, todayIso) > 365); if (stale.length) { %><p class="small" style="color:var(--amber)">Older than 12 months (worth re-swimming): <%= stale.map((r) => r.name).join(', ') %>.</p><% } %>
+  <h3>Note</h3>
+  <p class="small muted"><%= meta.conditions || '' %> <%= meta.note || '' %> Qualifying window: <%= meta.qualifying_window || 'see the official sheet' %>. Verify any sub-0.20s margin against the official sheet, and confirm each entry swim falls inside the window at a licensed meet.
+  <% if (rows.some((r) => r.best.source === 'LC' && !r.best.official)) { %> LC→SC* = converted with Coach Desk's conversion table, not an official swimmingresults figure.<% } %></p>
+</div>
+<p class="small muted">Margin: + = under the QT (qualified), − = still to drop. ★ = new swim since the chosen date.</p>
+<%- include('partials/foot') %>

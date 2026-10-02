@@ -1,0 +1,31 @@
+<%- include('partials/head') %>
+<h1><%= title %></h1>
+<% if (errors.length) { %><div class="errors"><%= errors.join(' ') %></div><% } %>
+<% if (typeof info !== 'undefined' && info) { %><div class="flash"><%= info %></div><% } %>
+<% if (plan) { %><div class="card small"><strong>Week <%= plan.week_no %></strong> (<%= Number(settings.counties_week) - plan.week_no %> to Counties):
+  <%= [plan.mesocycle, plan.focus, plan.drills && `drill rotation ${plan.drills}`].filter(Boolean).join(' · ') || 'no plan entered' %><% if (plan.holiday) { %> <span class="band amber">holiday</span><% } %></div><% } %>
+<% if (typeof gen !== 'undefined' && gen) { %>
+  <div class="warn small"><strong>Generated draft</strong> — focus stroke <%= gen.stroke %>, target <%= gen.target %>m, seed <%= gen.seed %>. Edit anything, then Save.
+    <% if (explain.length) { %><ul style="margin:.4em 0 0"><% for (const e of explain) { %><li><%= e %></li><% } %></ul><% } %></div>
+<% } %>
+<form method="post" action="<%= sess.id ? `/sessions/${sess.id}` : '/sessions' %>" class="card">
+  <div class="form-grid">
+    <label><span>Date</span><input type="date" name="date" value="<%= sess.date || '' %>" required></label>
+    <label><span>Session</span><select name="slot"><% for (const s of calc.SLOTS) { %><option <%= sess.slot === s ? 'selected' : '' %>><%= s %></option><% } %></select></label>
+    <label><span>Group</span><select name="group_name"><% for (const g of calc.GROUPS) { %><option <%= sess.group_name === g ? 'selected' : '' %>><%= g %></option><% } %></select></label>
+    <label><span>Total metres</span><input type="number" name="total_m" value="<%= sess.total_m || '' %>" step="25" min="0"></label>
+  </div>
+  <% if (!sess.id) { %>
+  <div class="actions">
+    <button class="secondary small" formmethod="get" formaction="/sessions/new" name="copy" value="1" formnovalidate>Copy last week's</button>
+    <button class="secondary small" formmethod="get" formaction="/sessions/generate" name="seed" value="<%= (typeof gen !== 'undefined' && gen) ? gen.seed + 1 : 1 %>" formnovalidate><%= (typeof gen !== 'undefined' && gen) ? 'Re-roll' : 'Generate from plan' %></button>
+    <span class="small muted">uses the date, session and group above</span>
+  </div>
+  <% } %>
+  <label class="field"><span>Sets</span><textarea name="sets" class="sets"><%= sess.sets || '' %></textarea></label>
+  <label class="field"><span>Notes</span><textarea name="notes"><%= sess.notes || '' %></textarea></label>
+  <input type="hidden" name="generated" value="<%= sess.generated ? 1 : '' %>"><input type="hidden" name="seed" value="<%= sess.seed || '' %>"><input type="hidden" name="drill_ids" value="<%= sess.drill_ids || '' %>">
+  <div class="actions"><button>Save session</button><a class="btn secondary" href="<%= sess.id ? `/sessions/${sess.id}` : '/sessions' %>">Cancel</a></div>
+</form>
+<% if (sess.id) { %><form method="post" action="/sessions/<%= sess.id %>/delete" onsubmit="return confirm('Delete this session?')"><button class="danger small">Delete session</button></form><% } %>
+<%- include('partials/foot') %>

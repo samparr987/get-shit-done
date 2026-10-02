@@ -1,0 +1,25 @@
+<%- include('partials/head') %>
+<h1>Annual plan</h1>
+<p class="small muted">Week 1 starts <%= fmtDate(settings.season_start) %>. Counties = week <%= settings.counties_week %>. Galas in the Galas list show up automatically.</p>
+<div class="actions"><a class="btn secondary small" href="#current">Jump to this week</a><a class="btn secondary small" href="/import/plan">Import CSV/XLSX</a><%- include('partials/csv') %></div>
+<form method="post" action="/plan">
+  <div class="table-wrap"><table>
+    <tr><th>Wk</th><th>Starts</th><th class="num">To Co.</th><th>Mesocycle</th><th>Focus / theme</th><th>Drills</th><th>Notes</th><th>Galas</th><th>Hol</th></tr>
+    <% rows.forEach((w, i) => { const cur = w.week_no === currentWeek; %>
+    <tr class="<%= cur ? 'current' : w.holiday ? 'holiday' : '' %>" <%- cur ? 'id="current"' : '' %>>
+      <td><strong><%= w.week_no %></strong><input type="hidden" name="rows[<%= i %>][week_no]" value="<%= w.week_no %>"></td>
+      <td class="nowrap small"><a href="/sessions?week=<%= w.week_no %>"><%= fmtDate(w.start_date) %></a></td>
+      <td class="num"><%= w.toCounties > 0 ? w.toCounties : w.toCounties === 0 ? '🏁' : '' %></td>
+      <td><input type="text" name="rows[<%= i %>][mesocycle]" value="<%= w.mesocycle || '' %>" style="min-width:110px"></td>
+      <td><input type="text" name="rows[<%= i %>][focus]" value="<%= w.focus || '' %>" style="min-width:150px"></td>
+      <td><input type="text" name="rows[<%= i %>][drills]" value="<%= w.drills || '' %>" style="min-width:80px"></td>
+      <td><input type="text" name="rows[<%= i %>][notes]" value="<%= w.notes || '' %>" style="min-width:150px"></td>
+      <td><input type="text" name="rows[<%= i %>][galas_text]" value="<%= w.galas_text || '' %>" style="min-width:110px">
+        <% for (const g of w.galas) { %><div class="small"><a href="/galas/<%= g.id %>"><%= g.name %></a></div><% } %></td>
+      <td><input type="checkbox" name="rows[<%= i %>][holiday]" value="1" <%= w.holiday ? 'checked' : '' %> aria-label="Holiday week <%= w.week_no %>"></td>
+    </tr>
+    <% }) %>
+  </table></div>
+  <div class="actions" style="position:sticky;bottom:0;background:var(--bg);padding:8px 0"><button>Save plan</button></div>
+</form>
+<%- include('partials/foot') %>

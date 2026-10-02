@@ -1,0 +1,18 @@
+<%- include('partials/head') %>
+<h1><%= title %></h1>
+<% if (errors.length) { %><div class="errors"><%= errors.join(' ') %></div><% } %>
+<form method="post" action="<%= g.id ? `/galas/${g.id}` : '/galas' %>" class="card">
+  <div class="form-grid">
+    <label><span>Name</span><input type="text" name="name" value="<%= g.name || '' %>" required></label>
+    <label><span>Start date</span><input type="date" name="start_date" value="<%= g.start_date || '' %>" required></label>
+    <label><span>End date</span><input type="date" name="end_date" value="<%= g.end_date || '' %>"></label>
+    <label><span>Venue</span><input type="text" name="venue" value="<%= g.venue || '' %>"></label>
+    <label><span>Course</span><select name="course"><option value="">?</option><option <%= g.course === 'SC' ? 'selected' : '' %>>SC</option><option <%= g.course === 'LC' ? 'selected' : '' %>>LC</option></select></label>
+    <label><span>Entries close</span><input type="date" name="closing_date" value="<%= g.closing_date || '' %>"></label>
+    <label><span>Age at (date)</span><input type="date" name="age_at_date" value="<%= g.age_at_date || '' %>"></label>
+  </div>
+  <label class="field"><span>Notes</span><textarea name="notes"><%= g.notes || '' %></textarea></label>
+  <div class="actions"><button>Save</button><a class="btn secondary" href="<%= g.id ? `/galas/${g.id}` : '/galas' %>">Cancel</a></div>
+</form>
+<% if (g.id) { %><form method="post" action="/galas/<%= g.id %>/delete" onsubmit="return confirm('Delete this gala and all its entries?')"><button class="danger small">Delete gala</button></form><% } %>
+<%- include('partials/foot') %>

@@ -1,0 +1,26 @@
+<%- include('partials/head') %>
+<h1><%= title %></h1>
+<% if (errors.length) { %><div class="errors"><%= errors.join(' ') %></div><% } %>
+<form method="post" action="<%= d.id ? `/drills/${d.id}` : '/drills' %>" class="card">
+  <div class="form-grid">
+    <label><span>Name</span><input type="text" name="name" value="<%= d.name || '' %>" required></label>
+    <label><span>Stroke</span><select name="stroke"><% for (const s of calc.TECH_STROKES) { %><option <%= d.stroke === s ? 'selected' : '' %>><%= s %></option><% } %></select></label>
+    <label><span>Category</span><input type="text" name="category" value="<%= d.category || '' %>" placeholder="Kick, Timing, Catch…"></label>
+    <label><span>Rotation (A, B, C…)</span><input type="text" name="rotation" value="<%= d.rotation || '' %>"></label>
+    <label><span>Equipment</span><input type="text" name="equipment" value="<%= d.equipment || '' %>"></label>
+    <label><span>Video link</span><input type="url" name="video_url" value="<%= d.video_url || '' %>"></label>
+  </div>
+  <label class="field"><span>How to do it</span><textarea name="description"><%= d.description || '' %></textarea></label>
+  <div class="field"><span>Suits groups (none ticked = any)</span>
+    <div class="checks"><% const gs = String(d.groups || '').split(',').map((x) => x.trim()); for (const g of calc.GROUPS) { %><label><input type="checkbox" name="groups" value="<%= g %>" <%= gs.includes(g) ? 'checked' : '' %>> <%= g %></label><% } %></div></div>
+  <div class="checks"><label><input type="checkbox" name="active" value="1" <%= d.active ? 'checked' : '' %>> Active (used by the generator)</label></div>
+  <details class="field" style="margin-top:10px" open><summary><strong>Technique points this drill works on</strong></summary>
+    <% for (const s of calc.TECH_STROKES) { const pts = points.filter((p) => p.stroke === s); if (!pts.length) continue; %>
+      <div class="small muted" style="margin-top:8px"><%= s %></div>
+      <div class="checks"><% for (const p of pts) { %><label><input type="checkbox" name="points" value="<%= p.id %>" <%= linked.includes(p.id) ? 'checked' : '' %>> <%= p.cue_word || p.point %></label><% } %></div>
+    <% } %>
+  </details>
+  <div class="actions"><button>Save</button><a class="btn secondary" href="<%= d.id ? `/drills/${d.id}` : '/drills' %>">Cancel</a></div>
+</form>
+<% if (d.id) { %><form method="post" action="/drills/<%= d.id %>/delete" onsubmit="return confirm('Delete this drill?')"><button class="danger small">Delete drill</button></form><% } %>
+<%- include('partials/foot') %>

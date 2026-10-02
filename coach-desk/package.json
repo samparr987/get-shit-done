@@ -1,0 +1,30 @@
+{
+  "name": "coach-desk",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local swim coaching records for Horwich LC ASC",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "start:lan": "node src/server.js --lan",
+    "test": "node --test",
+    "build:artifact": "node artifact/build.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "csv-parse": "^7.0.3",
+    "ejs": "^6.0.1",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "multer": "^2.4.0",
+    "pdfkit": "^0.20.2"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "esbuild": "^0.28.2",
+    "sql.js": "^1.10.3"
+  }
+}

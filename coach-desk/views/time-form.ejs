@@ -1,0 +1,17 @@
+<%- include('partials/head') %>
+<h1><%= title %></h1>
+<% if (errors.length) { %><div class="errors"><%= errors.join(' ') %></div><% } %>
+<form method="post" action="<%= t.id ? `/times/${t.id}` : '/times' %>" class="card">
+  <div class="form-grid">
+    <label><span>Swimmer</span><select name="swimmer_id" required><option value=""></option><% for (const s of swimmers) { %><option value="<%= s.id %>" <%= String(t.swimmer_id) === String(s.id) ? 'selected' : '' %>><%= s.last_name %>, <%= s.first_name %><%= s.group_name ? ` (${s.group_name})` : '' %></option><% } %></select></label>
+    <label><span>Event</span><select name="event" required><option value=""></option><% for (const e of calc.EVENTS) { %><option value="<%= e.key %>" <%= t.event === e.key ? 'selected' : '' %>><%= e.name %></option><% } %></select></label>
+    <label><span>Course</span><select name="course"><option <%= t.course === 'SC' ? 'selected' : '' %>>SC</option><option <%= t.course === 'LC' ? 'selected' : '' %>>LC</option></select></label>
+    <label><span>Time (e.g. 1:05.23 or 32.80)</span><input type="text" name="time" value="<%= t.time || '' %>" inputmode="decimal" autocomplete="off" required></label>
+    <label><span>Date</span><input type="date" name="swum_on" value="<%= t.swum_on || '' %>" required></label>
+    <label><span>Meet</span><input type="text" name="meet" value="<%= t.meet || '' %>" list="meets"><datalist id="meets"><% for (const m of meets) { %><option value="<%= m %>"><% } %></datalist></label>
+    <label><span>LC only: official “Converted to SC” (optional)</span><input type="text" name="conv" value="<%= t.conv || '' %>" inputmode="decimal"></label>
+  </div>
+  <div class="actions"><button>Save</button><% if (!t.id) { %><button name="again" value="1" class="secondary">Save &amp; add another</button><% } %><a class="btn secondary" href="javascript:history.back()">Cancel</a></div>
+</form>
+<% if (t.id) { %><form method="post" action="/times/<%= t.id %>/delete" onsubmit="return confirm('Delete this time?')"><button class="danger small">Delete time</button></form><% } %>
+<%- include('partials/foot') %>

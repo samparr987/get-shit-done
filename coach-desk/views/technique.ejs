@@ -1,0 +1,30 @@
+<%- include('partials/head') %>
+<h1>Technique points</h1>
+<div class="tabs"><a href="/technique<%= web.qs({ edit: query.edit }) %>" class="<%= !stroke ? 'on' : '' %>">All</a><% for (const s of calc.TECH_STROKES) { %><a href="/technique<%= web.qs({ stroke: s, edit: query.edit }) %>" class="<%= stroke === s ? 'on' : '' %>"><%= s %></a><% } %></div>
+<div class="actions"><% if (edit) { %><a class="btn secondary small" href="/technique<%= web.qs({ stroke }) %>">Done editing</a><% } else { %><a class="btn small" href="/technique<%= web.qs({ stroke, edit: 1 }) %>">Edit</a><% } %>
+  <a class="btn secondary small" href="/import/technique">Import</a><%- include('partials/csv') %></div>
+<% if (!edit) { %>
+  <% for (const s of stroke ? [stroke] : calc.TECH_STROKES) { const pts = rows.filter((r) => r.stroke === s); if (!pts.length) continue; %>
+  <div class="card"><h2 style="margin-top:0"><%= s %></h2>
+    <ul class="plain"><% for (const p of pts) { %><li><% if (p.area) { %><span class="muted small"><%= p.area %> · </span><% } %><%= p.point %><% if (p.cue_word) { %> <strong>“<%= p.cue_word %>”</strong><% } %></li><% } %></ul></div>
+  <% } %>
+  <% if (!rows.length) { %><div class="card muted">No points yet.</div><% } %>
+<% } else { %>
+  <div class="table-wrap"><table>
+    <tr><th>Stroke</th><th>Area</th><th>Point</th><th>Cue word</th><th></th></tr>
+    <% for (const p of rows) { %>
+    <tr><td><%= p.stroke %></td><td colspan="4"><form method="post" action="/technique/<%= p.id %>" style="display:flex;gap:6px;flex-wrap:wrap">
+      <input type="hidden" name="stroke" value="<%= stroke || '' %>">
+      <input type="text" name="area" value="<%= p.area || '' %>" style="width:130px"><input type="text" name="point" value="<%= p.point %>" style="flex:1;min-width:220px"><input type="text" name="cue_word" value="<%= p.cue_word || '' %>" style="width:150px">
+      <button class="small">Save</button><button class="small danger" formaction="/technique/<%= p.id %>/delete" onclick="return confirm('Delete?')">✕</button></form></td></tr>
+    <% } %>
+  </table></div>
+  <form method="post" action="/technique" class="card"><strong>Add a point</strong>
+    <div class="form-grid" style="margin-top:8px">
+      <label><span>Stroke</span><select name="stroke"><% for (const s of calc.TECH_STROKES) { %><option <%= stroke === s ? 'selected' : '' %>><%= s %></option><% } %></select></label>
+      <label><span>Area</span><input type="text" name="area" placeholder="e.g. Catch"></label>
+      <label><span>Point</span><input type="text" name="point" required></label>
+      <label><span>Cue word</span><input type="text" name="cue_word"></label>
+    </div><div class="actions"><button>Add</button></div></form>
+<% } %>
+<%- include('partials/foot') %>

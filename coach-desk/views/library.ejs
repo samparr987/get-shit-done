@@ -1,0 +1,54 @@
+<%- include('partials/head') %>
+<h1>Session library</h1>
+<p class="small muted">The generator's building blocks. Tags are comma lists; blank = suits anything. <code>{stroke}</code> in a set is replaced by the week's focus stroke.
+  Mesocycle and focus tags match words in the annual plan (e.g. tag “aerobic” matches a mesocycle called “Aerobic base”).</p>
+
+<h2 id="shapes">Session sizes (per group &amp; session)</h2>
+<form method="post" action="/library/shapes">
+  <div class="table-wrap"><table>
+    <tr><th>Group</th><th>Session</th><th>Minutes</th><th>Target metres</th><th>Parts, in order</th><th>Remove</th></tr>
+    <% shapes.forEach((s, i) => { %>
+    <tr><td><%= s.group_name %><input type="hidden" name="rows[<%= i %>][group_name]" value="<%= s.group_name %>"></td><td><%= s.slot %><input type="hidden" name="rows[<%= i %>][slot]" value="<%= s.slot %>"></td>
+      <td><input type="number" name="rows[<%= i %>][minutes]" value="<%= s.minutes || '' %>" style="width:80px"></td>
+      <td><input type="number" name="rows[<%= i %>][target_m]" value="<%= s.target_m %>" step="50" style="width:100px"></td>
+      <td><input type="text" name="rows[<%= i %>][parts]" value="<%= s.parts %>" style="min-width:300px"></td>
+      <td><input type="checkbox" name="rows[<%= i %>][remove]" value="1"></td></tr>
+    <% }) %>
+    <tr><td><select name="rows[<%= shapes.length %>][group_name]"><option value="">+ add…</option><% for (const g of calc.GROUPS) { %><option><%= g %></option><% } %></select></td>
+      <td><select name="rows[<%= shapes.length %>][slot]"><% for (const s of calc.SLOTS) { %><option><%= s %></option><% } %></select></td>
+      <td><input type="number" name="rows[<%= shapes.length %>][minutes]" style="width:80px"></td><td><input type="number" name="rows[<%= shapes.length %>][target_m]" step="50" style="width:100px"></td>
+      <td><input type="text" name="rows[<%= shapes.length %>][parts]" value="Warm-up,Drill,Main,Swim-down"></td><td></td></tr>
+  </table></div>
+  <p class="small muted">Parts: <%= PARTS.join(', ') %>. Groups with no row here can't be generated.</p>
+  <div class="actions"><button>Save session sizes</button></div>
+</form>
+
+<h2 id="templates">Set templates <span class="muted small">(<%= templates.length %>)</span></h2>
+<div class="actions"><%- include('partials/csv') %></div>
+<% for (const t of templates) { %>
+<form method="post" action="/library/templates/<%= t.id %>" class="card" id="t<%= t.id %>">
+  <div class="form-grid">
+    <label><span>Name</span><input type="text" name="name" value="<%= t.name %>"></label>
+    <label><span>Part</span><select name="part"><% for (const p of PARTS) { %><option <%= t.part === p ? 'selected' : '' %>><%= p %></option><% } %></select></label>
+    <label><span>Metres</span><input type="number" name="metres" value="<%= t.metres %>" step="25"></label>
+    <label><span>Mesocycles</span><input type="text" name="mesocycles" value="<%= t.mesocycles %>"></label>
+    <label><span>Focus tags</span><input type="text" name="focus_tags" value="<%= t.focus_tags %>"></label>
+    <label><span>Groups</span><input type="text" name="groups" value="<%= t.groups %>"></label>
+  </div>
+  <label class="field"><span>Set</span><textarea name="text" style="font-family:ui-monospace,Consolas,monospace"><%= t.text %></textarea></label>
+  <div class="actions"><button class="small">Save</button><button class="small danger" formaction="/library/templates/<%= t.id %>/delete" onclick="return confirm('Delete this template?')">Delete</button></div>
+</form>
+<% } %>
+<form method="post" action="/library/templates" class="card"><strong>Add a template</strong>
+  <div class="form-grid" style="margin-top:8px">
+    <label><span>Name</span><input type="text" name="name" required></label>
+    <label><span>Part</span><select name="part"><% for (const p of PARTS) { %><option <%= p === 'Main' ? 'selected' : '' %>><%= p %></option><% } %></select></label>
+    <label><span>Metres</span><input type="number" name="metres" step="25" required></label>
+    <label><span>Mesocycles</span><input type="text" name="mesocycles"></label>
+    <label><span>Focus tags</span><input type="text" name="focus_tags"></label>
+    <label><span>Groups</span><input type="text" name="groups"></label>
+  </div>
+  <label class="field"><span>Set</span><textarea name="text" required style="font-family:ui-monospace,Consolas,monospace" placeholder="8 x 50 {stroke} @ 1:00 descend 1-4"></textarea></label>
+  <div class="actions"><button>Add template</button></div>
+</form>
+<%- include('partials/foot') %>

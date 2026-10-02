@@ -1,0 +1,15 @@
+<%- include('partials/head') %>
+<h1><%= d.name %> <% if (!d.active) { %><span class="band none">inactive</span><% } %></h1>
+<div class="card">
+  <p class="small"><strong><%= d.stroke %></strong><%= d.category ? ` · ${d.category}` : '' %><%= d.rotation ? ` · rotation ${d.rotation}` : '' %> · groups: <%= d.groups || 'any' %><%= d.equipment ? ` · kit: ${d.equipment}` : '' %></p>
+  <% if (d.description) { %><p style="white-space:pre-wrap"><%= d.description %></p><% } %>
+  <% if (/^https?:\/\//i.test(d.video_url || "")) { %><p><a href="<%= d.video_url %>" target="_blank" rel="noopener">Video ↗</a></p><% } %>
+</div>
+<div class="actions"><a class="btn" href="/drills/<%= d.id %>/edit">Edit</a><a class="btn secondary" href="/drills">All drills</a></div>
+<h2>Technique points</h2>
+<% if (!points.length) { %><p class="muted">None linked — edit the drill to tick the points it works on (they become the cues on generated sessions).</p><% } %>
+<ul class="plain card"><% for (const p of points) { %><li><span class="muted small"><%= p.stroke %><%= p.area ? ` · ${p.area}` : '' %> · </span><%= p.point %><% if (p.cue_word) { %> <strong>“<%= p.cue_word %>”</strong><% } %></li><% } %></ul>
+<h2>Used in sessions</h2>
+<% if (!sessions.length) { %><p class="muted">Not used yet.</p><% } %>
+<ul class="plain"><% for (const s of sessions) { %><li><a href="/sessions/<%= s.id %>"><%= fmtDate(s.date) %> · <%= s.slot %> · <%= s.group_name %></a></li><% } %></ul>
+<%- include('partials/foot') %>

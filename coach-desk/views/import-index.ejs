@@ -1,0 +1,8 @@
+<%- include('partials/head') %>
+<h1>Import</h1>
+<p class="muted">CSV or XLSX. You'll see a column-mapping preview before anything is saved. Columns such as addresses, phone numbers, emails, medical or parent details are ignored automatically and never stored.</p>
+<div class="grid"><% for (const [k, v] of Object.entries(kinds)) { %>
+  <a class="card" href="/import/<%= k %>" style="text-decoration:none;color:inherit"><strong><%= v.title %></strong><br><span class="small muted"><%= v.fields.map((f) => f.label).join(', ') %></span></a>
+<% } %></div>
+<p class="small">Also: <a href="/county/times">load a standards JSON</a> · paste a swimmer's swimmingresults page from their profile.</p>
+<%- include('partials/foot') %>

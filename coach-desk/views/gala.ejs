@@ -1,0 +1,36 @@
+<%- include('partials/head') %>
+<% const d = g.closing_date ? calc.daysBetween(todayIso, g.closing_date) : null; %>
+<h1><%= g.name %></h1>
+<div class="card small">
+  <strong><%= fmtDate(g.start_date) %><%= g.end_date !== g.start_date ? ` – ${fmtDate(g.end_date)}` : '' %></strong>
+  · <%= g.venue || 'venue not set' %> · <%= g.course ? `${g.course === 'SC' ? 'Short' : 'Long'} course` : 'course not set' %>
+  · entries close <% if (g.closing_date) { %><span class="band <%= d < 0 ? 'red' : d <= 7 ? 'amber' : 'none' %>"><%= fmtDate(g.closing_date) %><%= d < 0 ? ' — closed' : ` — ${d} day${d === 1 ? '' : 's'}` %></span><% } else { %><span class="band amber">not set</span><% } %>
+  · ages at <%= fmtDate(ageAt) %><%= g.age_at_date ? '' : ' (start date — set “age at” if different)' %>
+  <% if (g.notes) { %><p style="margin:.5em 0 0;white-space:pre-wrap"><%= g.notes %></p><% } %>
+</div>
+<div class="actions"><a class="btn secondary" href="/galas/<%= g.id %>/edit">Edit gala</a><%- include('partials/csv') %>
+  <form class="inline" method="post" action="/galas/<%= g.id %>/refresh-times"><button class="secondary">Refresh auto entry times</button></form></div>
+
+<h2>Entries <span class="muted small"><%= entries.filter((e) => e.status !== 'withdrawn').length %> swims · <%= new Set(entries.filter((e) => e.status !== 'withdrawn').map((e) => e.swimmer_id)).size %> swimmers</span></h2>
+<div class="table-wrap"><table>
+  <tr><th>Swimmer</th><th>Event</th><th>Entry time</th><th>Status</th><th></th></tr>
+  <% for (const e of entries) { %>
+  <tr id="e<%= e.id %>" class="<%= e.status === 'entered' ? 'green' : '' %>"><td><a href="/swimmers/<%= e.swimmer_id %>"><%= e.first_name %> <%= e.last_name %></a> <span class="muted small"><%= e.sex === 'F' ? 'G' : 'B' %><%= calc.ageOn(e.dob, ageAt) %></span></td>
+    <td><%= eventName(e.event) %></td>
+    <td colspan="2"><form method="post" action="/entries/<%= e.id %>" class="inline" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <input type="text" name="entry_time" class="time" value="<%= fmtTime(e.entry_hs) %>" placeholder="NT" inputmode="decimal" title="<%= e.entry_auto ? 'Auto-filled from best time' : 'Typed by you' %>">
+      <span class="small muted"><%= e.entry_auto ? 'auto' : 'manual' %></span>
+      <select name="status"><% for (const s of ['planned', 'entered', 'withdrawn']) { %><option <%= e.status === s ? 'selected' : '' %>><%= s %></option><% } %></select>
+      <button class="small">Save</button><% if (!e.entry_auto) { %><button class="small secondary" name="auto" value="1">Use best</button><% } %></form></td>
+    <td><form method="post" action="/entries/<%= e.id %>/delete" class="inline" onsubmit="return confirm('Remove entry?')"><button class="small danger">✕</button></form></td></tr>
+  <% } %>
+  <% if (!entries.length) { %><tr><td colspan="5" class="muted">No entries yet.</td></tr><% } %>
+</table></div>
+
+<form method="post" action="/galas/<%= g.id %>/entries" class="card">
+  <strong>Add entries</strong> <span class="small muted">— entry time is filled from the swimmer's best <%= g.course === 'LC' ? 'LC time' : 'SC-equivalent time' %>; you can change it after.</span>
+  <label class="field" style="margin-top:8px"><span>Swimmer</span><select name="swimmer_id" required><option value=""></option><% for (const s of swimmers) { %><option value="<%= s.id %>"><%= s.last_name %>, <%= s.first_name %><%= s.group_name ? ` (${s.group_name})` : '' %></option><% } %></select></label>
+  <div class="checks" style="margin:8px 0"><% for (const e of calc.EVENTS) { if (g.course === 'LC' && e.key === '100IM') continue; %><label><input type="checkbox" name="events" value="<%= e.key %>"> <%= e.name %></label><% } %></div>
+  <button>Add</button>
+</form>
+<%- include('partials/foot') %>

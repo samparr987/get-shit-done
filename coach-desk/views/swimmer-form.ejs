@@ -1,0 +1,26 @@
+<%- include('partials/head') %>
+<h1><%= title %></h1>
+<% if (errors.length) { %><div class="errors"><%= errors.join(' ') %></div><% } %>
+<form method="post" action="<%= sw.id ? `/swimmers/${sw.id}` : '/swimmers' %>" class="card">
+  <div class="form-grid">
+    <label><span>First name</span><input type="text" name="first_name" value="<%= sw.first_name || '' %>" required></label>
+    <label><span>Last name</span><input type="text" name="last_name" value="<%= sw.last_name || '' %>" required></label>
+    <label><span>Date of birth</span><input type="date" name="dob" value="<%= sw.dob || '' %>" required></label>
+    <label><span>Sex</span><select name="sex" required><option value=""></option><option value="F" <%= sw.sex === 'F' ? 'selected' : '' %>>Female</option><option value="M" <%= sw.sex === 'M' ? 'selected' : '' %>>Male</option></select></label>
+    <label><span>Swim England ID</span><input type="text" name="se_id" value="<%= sw.se_id || '' %>" inputmode="numeric"></label>
+    <label><span>Group <% if (sw.group_locked) { %>🔒 locked<% } %></span><select name="group_name"><option value="">—</option><% for (const g of calc.GROUPS) { %><option <%= sw.group_name === g ? 'selected' : '' %>><%= g %></option><% } %></select></label>
+    <label><span>Other club</span><input type="text" name="other_club" value="<%= sw.other_club || '' %>"></label>
+  </div>
+  <div class="checks" style="margin-top:10px">
+    <label><input type="checkbox" name="bolton_metro" value="1" <%= sw.bolton_metro ? 'checked' : '' %>> Bolton Metro</label>
+    <label><input type="checkbox" name="active" value="1" <%= sw.active ? 'checked' : '' %>> Active</label>
+    <% if (sw.id && sw.group_locked) { %><label><input type="checkbox" name="unlock" value="1"> Unlock group (let the next import set it<%= sw.imported_group ? ` — import says “${sw.imported_group}”` : '' %>)</label><% } %>
+  </div>
+  <p class="small muted">Changing the group by hand locks it, so re-importing the member export won't overwrite it.</p>
+  <label class="field"><span>Notes (coaching only — no medical or contact details)</span><textarea name="notes"><%= sw.notes || '' %></textarea></label>
+  <div class="actions"><button>Save</button><a class="btn secondary" href="<%= sw.id ? `/swimmers/${sw.id}` : '/swimmers' %>">Cancel</a></div>
+</form>
+<% if (sw.id) { %>
+<form method="post" action="/swimmers/<%= sw.id %>/delete" onsubmit="return confirm('Delete this swimmer and all their times and entries?')"><button class="danger small">Delete swimmer</button></form>
+<% } %>
+<%- include('partials/foot') %>

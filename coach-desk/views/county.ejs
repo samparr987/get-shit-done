@@ -1,0 +1,30 @@
+<%- include('partials/head') %>
+<h1>County <%= info.season %> — gap to qualifying</h1>
+<p class="small muted">Best SC-equivalent (faster of SC PB and LC PB → SC) vs the <%= info.meta.authority || 'county' %> <%= info.season %> times, age at <%= fmtDate(info.ageAt) %>.
+  Green = qualified · amber = within <%= settings.amber_threshold_s %> s · red = further off.</p>
+<form class="filters" method="get">
+  <label>Group<select name="group"><option value="">All</option><% for (const g of calc.GROUPS) { %><option <%= query.group === g ? 'selected' : '' %>><%= g %></option><% } %></select></label>
+  <label>Event<select name="event"><option value="">All</option><% for (const e of calc.EVENTS) { %><option value="<%= e.key %>" <%= query.event === e.key ? 'selected' : '' %>><%= e.name %></option><% } %></select></label>
+  <label>Sex<select name="sex"><option value="">All</option><option value="F" <%= query.sex === 'F' ? 'selected' : '' %>>Girls</option><option value="M" <%= query.sex === 'M' ? 'selected' : '' %>>Boys</option></select></label>
+  <label>Colour<select name="band"><option value="">All</option><% for (const b of ['green', 'amber', 'red']) { %><option <%= query.band === b ? 'selected' : '' %>><%= b %></option><% } %></select></label>
+  <label>Sort<select name="sort"><option value="closest">Closest to qualifying</option><option value="event" <%= query.sort === 'event' ? 'selected' : '' %>>Event</option><option value="name" <%= query.sort === 'name' ? 'selected' : '' %>>Name</option></select></label>
+  <button class="small">Show</button>
+</form>
+<div class="actions">
+  <span class="band green"><%= counts.green %> qualified</span><span class="band amber"><%= counts.amber %> amber</span><span class="band red"><%= counts.red %> red</span>
+  <%- include('partials/csv') %>
+  <% if (!locals.isArtifact) { %><a class="btn secondary small" href="/county/report.pdf<%= web.qs({ group: query.group }) %>">PDF report per swimmer<%= query.group ? ` (${query.group})` : '' %></a><% } %>
+  <a class="btn secondary small" href="/county/times">Qualifying times</a><a class="btn secondary small" href="/conversions">LC→SC tables</a>
+</div>
+<div class="table-wrap"><table>
+  <tr><th>Swimmer</th><th class="hide-sm">Group</th><th>Event</th><th class="num">Best</th><th class="num">QT</th><th class="num">Gap</th><th></th></tr>
+  <% for (const r of rows) { %>
+  <tr class="<%= r.band === 'red' ? '' : r.band %>"><td><a href="/swimmers/<%= r.swimmer.id %>/county"><%= name(r.swimmer) %></a> <span class="muted small"><%= r.swimmer.sex === 'F' ? 'G' : 'B' %><%= r.age %></span></td>
+    <td class="hide-sm"><%= r.swimmer.group_name || '' %></td><td><%= r.name %></td>
+    <td class="num"><%= fmtTime(r.best.time) %><%= r.best.source === 'LC' ? (r.best.official ? ' L' : ' L*') : '' %></td><td class="num"><%= fmtTime(r.qt) %></td>
+    <td class="num"><strong><%= gapText(r.gap) %></strong></td><td><span class="band <%= r.band %>"><%= r.band %></span></td></tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="7" class="muted">Nothing to show — swimmers need times in events that have a county time for their age.</td></tr><% } %>
+</table></div>
+<p class="small muted">L = best came from a long-course swim converted to SC (L* = converted with the Coach Desk table rather than the official swimmingresults figure).</p>
+<%- include('partials/foot') %>

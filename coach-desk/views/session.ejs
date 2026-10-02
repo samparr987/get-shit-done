@@ -1,0 +1,14 @@
+<%- include('partials/head') %>
+<h1><%= sess.slot %> · <%= sess.group_name %> <span class="muted small"><%= fmtDate(sess.date) %></span></h1>
+<div class="card small">
+  <% if (plan) { %><a href="/plan#current">Week <%= plan.week_no %></a> · <%= Number(settings.counties_week) - plan.week_no %> to Counties<% if (plan.mesocycle || plan.focus || plan.drills) { %> · <%= [plan.mesocycle, plan.focus, plan.drills && `drills ${plan.drills}`].filter(Boolean).join(' · ') %><% } %><% } else { %>Not linked to a plan week<% } %>
+  <% if (sess.total_m) { %> · <strong><%= sess.total_m %>m</strong><% } %>
+  <% if (sess.generated) { %> · <span class="band none">generated</span><% } %>
+</div>
+<div class="actions"><a class="btn" href="/sessions/<%= sess.id %>/edit">Edit</a><a class="btn secondary" href="/sessions/<%= sess.id %>/print"><%= locals.isArtifact ? 'Clean view' : 'Print view' %></a>
+  <a class="btn secondary" href="/sessions/new?date=<%= calc.addDays(sess.date, 7) %>&slot=<%= encodeURIComponent(sess.slot) %>&group_name=<%= encodeURIComponent(sess.group_name) %>&copy=1">Copy to next week</a>
+  <a class="btn secondary" href="/sessions?week=<%= sess.week_no || '' %>">Week list</a></div>
+<pre class="sets"><%= sess.sets || '(no sets entered)' %></pre>
+<% if (drills.length) { %><h3>Drills used</h3><p><%- drills.map((d) => `<a href="/drills/${d.id}">${d.name.replace(/[<>&"]/g, '')}</a>`).join(' · ') %></p><% } %>
+<% if (sess.notes) { %><h3>Notes</h3><p style="white-space:pre-wrap"><%= sess.notes %></p><% } %>
+<%- include('partials/foot') %>
