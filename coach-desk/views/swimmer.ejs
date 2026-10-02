@@ -1,0 +1,68 @@
+<%- include('partials/head') %>
+<% const yr = Number(todayIso.slice(0, 4)); %>
+<h1><%= name(sw) %> <% if (!sw.active) { %><span class="band none">inactive</span><% } %></h1>
+<div class="card small">
+  <strong><%= sw.sex === 'F' ? 'Female' : 'Male' %></strong> · born <%= fmtDate(sw.dob) %> ·
+  age <strong><%= calc.ageOn(sw.dob, todayIso) %></strong> now · <strong><%= calc.ageAt31Dec(sw.dob, yr) %></strong> at 31 Dec <%= yr %> ·
+  county age <strong><%= analysis.age %></strong> (at <%= fmtDate(analysis.info.ageAt) %>)<br>
+  Group: <strong><%= sw.group_name || '—' %></strong> <% if (sw.group_locked) { %><span title="Set by you — imports will not change it">🔒</span><% } %>
+  <% if (sw.imported_group && sw.imported_group !== sw.group_name) { %><span class="muted">(member export says <%= sw.imported_group %>)</span><% } %>
+  <% if (sw.se_id) { %>· SE ID <%= sw.se_id %><% } %>
+  <% if (sw.other_club || sw.bolton_metro) { %>· <%= [sw.other_club, sw.bolton_metro ? 'Bolton Metro' : null].filter(Boolean).join(' · ') %><% } %>
+  <% if (sw.notes) { %><p style="margin:.5em 0 0;white-space:pre-wrap"><%= sw.notes %></p><% } %>
+</div>
+<div class="actions">
+  <a class="btn" href="/times/new?swimmer=<%= sw.id %>">+ Add time</a>
+  <a class="btn secondary" href="/swimmers/<%= sw.id %>/county">County analysis</a>
+  <a class="btn secondary" href="/swimmers/<%= sw.id %>/county.pdf">County PDF</a>
+  <a class="btn secondary" href="/swimmers/<%= sw.id %>/paste">Paste from swimmingresults</a>
+  <% if (srUrl) { %><a class="btn secondary" href="<%= srUrl %>" target="_blank" rel="noopener">swimmingresults.org ↗</a><% } %>
+  <a class="btn secondary" href="/swimmers/<%= sw.id %>/edit">Edit</a>
+</div>
+
+<h2>County <%= analysis.info.season %> — gap to qualifying</h2>
+<% const withQt = analysis.rows.filter((r) => r.qt != null); %>
+<% if (!withQt.length) { %><div class="card muted">No county times for <%= sw.sex === 'F' ? 'girls' : 'boys' %> aged <%= analysis.age %> in the <%= analysis.info.season %> table.</div><% } else { %>
+<div class="table-wrap"><table>
+  <tr><th>Event</th><th class="num">Best SC-equiv</th><th>From</th><th class="num">QT</th><th class="num">Gap</th><th></th></tr>
+  <% for (const r of withQt) { %>
+  <tr class="<%= r.band === 'green' || r.band === 'amber' ? r.band : '' %>"><td><%= r.name %></td>
+    <td class="num"><%= r.best ? fmtTime(r.best.time) : '—' %></td>
+    <td class="small"><%= !r.best ? '' : r.best.source === 'SC' ? 'SC PB' : `LC ${fmtTime(r.lc.time_hs)} → SC${r.best.official ? '' : '*'}` %></td>
+    <td class="num"><%= fmtTime(r.qt) %></td><td class="num"><%= r.gap ? gapText(r.gap) : '' %></td>
+    <td><span class="band <%= r.band %>"><%= r.band === 'notime' ? 'no time' : r.band %></span></td></tr>
+  <% } %>
+</table></div>
+<p class="small muted">Best = faster of the SC PB and the LC PB converted to SC. * converted with the <a href="/conversions">conversion table</a> (no official swimmingresults figure stored).</p>
+<% } %>
+
+<h2>Personal bests</h2>
+<% const evs = calc.EVENTS.filter((e) => pbs[e.key]); %>
+<% if (!evs.length) { %><div class="card muted">No times yet.</div><% } else { %>
+<div class="table-wrap"><table>
+  <tr><th>Event</th><th class="num">SC PB</th><th class="hide-sm">SC date / meet</th><th class="num">LC PB</th><th class="num">LC→SC</th><th class="hide-sm">LC date / meet</th></tr>
+  <% for (const e of evs) { const p = pbs[e.key]; %>
+  <tr><td><%= e.name %></td>
+    <td class="num"><%= p.SC ? fmtTime(p.SC.time_hs) : '' %></td><td class="hide-sm small"><%= p.SC ? `${fmtDate(p.SC.swum_on)} ${p.SC.meet || ''}` : '' %></td>
+    <td class="num"><%= p.LC ? fmtTime(p.LC.time_hs) : '' %></td><td class="num"><%= p.LCconv ? fmtTime(p.LCconv.time) + (p.LCconv.official ? '' : '*') : '' %></td>
+    <td class="hide-sm small"><%= p.LC ? `${fmtDate(p.LC.swum_on)} ${p.LC.meet || ''}` : '' %></td></tr>
+  <% } %>
+</table></div>
+<% } %>
+
+<% if (entries.length) { %>
+<h2>Upcoming entries</h2>
+<ul class="plain card"><% for (const e of entries) { %><li><a href="/galas/<%= e.gala_id %>"><%= e.gala_name %></a> · <%= eventName(e.event) %> · <%= fmtTime(e.entry_hs) || 'NT' %> · <span class="band <%= e.status === 'entered' ? 'green' : e.status === 'withdrawn' ? 'red' : 'none' %>"><%= e.status %></span></li><% } %></ul>
+<% } %>
+
+<h2>Recent times</h2>
+<div class="table-wrap"><table>
+  <tr><th>Date</th><th>Event</th><th>Course</th><th class="num">Time</th><th class="hide-sm">Meet</th><th></th></tr>
+  <% for (const t of times) { %>
+  <tr><td class="nowrap"><%= fmtDate(t.swum_on) %></td><td><%= eventName(t.event) %></td><td><%= t.course %></td><td class="num"><%= fmtTime(t.time_hs) %></td><td class="hide-sm"><%= t.meet || '' %></td>
+    <td><a href="/times/<%= t.id %>/edit" class="small">edit</a></td></tr>
+  <% } %>
+  <% if (!times.length) { %><tr><td colspan="6" class="muted">No times yet.</td></tr><% } %>
+</table></div>
+<p><a href="/times?swimmer=<%= sw.id %>">All times for <%= sw.first_name %> →</a></p>
+<%- include('partials/foot') %>

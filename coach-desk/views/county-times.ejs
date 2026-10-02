@@ -1,0 +1,47 @@
+<%- include('partials/head') %>
+<% const ageLabel = (r) => r.age_max == null ? r.age : r.age_max >= 99 ? `${r.age}/Ov` : `${r.age}/${r.age_max}`; %>
+<h1>County qualifying times</h1>
+<form class="filters" method="get">
+  <label>Season<select name="season"><% for (const s of seasons.length ? seasons : [season]) { %><option <%= s === season ? 'selected' : '' %>><%= s %></option><% } %></select></label>
+  <label>Sex<select name="sex"><option value="">Both</option><option value="F" <%= query.sex === 'F' ? 'selected' : '' %>>Girls</option><option value="M" <%= query.sex === 'M' ? 'selected' : '' %>>Boys</option></select></label>
+  <label>Event<select name="event"><option value="">All</option><% for (const e of calc.EVENTS) { %><option value="<%= e.key %>" <%= query.event === e.key ? 'selected' : '' %>><%= e.name %></option><% } %></select></label>
+  <button class="small">Show</button>
+</form>
+<div class="actions"><a class="btn secondary small" href="/import/county">Import CSV/XLSX</a><%- include('partials/csv') %><a class="btn secondary small" href="/county">← Gap view</a></div>
+<form method="post" action="/county/times">
+  <input type="hidden" name="season" value="<%= season %>"><input type="hidden" name="sex" value="<%= query.sex || '' %>"><input type="hidden" name="event" value="<%= query.event || '' %>">
+  <details class="card"><summary><strong>Sheet details</strong> <span class="muted small">(shown on the analysis page and PDF)</span></summary>
+    <div class="form-grid" style="margin-top:10px">
+      <label><span>Authority</span><input type="text" name="meta[authority]" value="<%= meta.authority || '' %>"></label>
+      <label><span>Age reference date</span><input type="date" name="meta[age_reference_date]" value="<%= meta.age_reference_date || '' %>"></label>
+      <label><span>Qualifying window</span><input type="text" name="meta[qualifying_window]" value="<%= meta.qualifying_window || '' %>"></label>
+      <label><span>Source</span><input type="text" name="meta[source]" value="<%= meta.source || '' %>"></label>
+    </div>
+    <label class="field"><span>Conditions</span><input type="text" name="meta[conditions]" value="<%= meta.conditions || '' %>"></label>
+    <label class="field"><span>Note</span><input type="text" name="meta[note]" value="<%= meta.note || '' %>"></label>
+  </details>
+  <div class="card"><strong>Add / replace a time:</strong>
+    <div class="form-grid" style="margin-top:8px">
+      <label><span>Event</span><select name="add[event]"><option value=""></option><% for (const e of calc.EVENTS) { %><option value="<%= e.key %>"><%= e.name %></option><% } %></select></label>
+      <label><span>Sex</span><select name="add[sex]"><option value="F">Girls</option><option value="M">Boys</option></select></label>
+      <label><span>Age (12, 10/11, 17/Ov)</span><input type="text" name="add[age]"></label>
+      <label><span>Course</span><select name="add[course]"><option>SC</option><option>LC</option></select></label>
+      <label><span>Time</span><input type="text" name="add[time]" class="time"></label>
+    </div>
+  </div>
+  <div class="actions"><button>Save changes</button><span class="muted small"><%= rows.length %> times in <%= season %></span></div>
+  <div class="table-wrap"><table>
+    <tr><th>Sex</th><th>Event</th><th>Course</th><th>Age</th><th>Time</th></tr>
+    <% rows.forEach((r, i) => { %>
+    <tr><td><%= r.sex === 'F' ? 'Girls' : 'Boys' %></td><td><%= eventName(r.event) %></td><td><%= r.course %></td><td><%= ageLabel(r) %></td>
+      <td><input type="hidden" name="rows[<%= i %>][id]" value="<%= r.id %>"><input type="text" class="time" name="rows[<%= i %>][time]" value="<%= fmtTime(r.time_hs) %>">
+        <button class="small secondary" formaction="/county/times/<%= r.id %>/delete" onclick="return confirm('Delete this time?')">✕</button></td></tr>
+    <% }) %>
+  </table></div>
+  <div class="actions"><button>Save changes</button></div>
+</form>
+<form method="post" action="/county/standards-json" enctype="multipart/form-data" class="card">
+  <strong>Load a standards sheet JSON</strong> <span class="muted small">(same format as the swimmer-county-analysis skill's <code>references/*.json</code>)</span>
+  <div class="actions"><input type="file" name="file" accept=".json" required><label>Season <input type="text" name="season" placeholder="from file" style="width:110px;display:inline-block"></label><button class="small">Load</button></div>
+</form>
+<%- include('partials/foot') %>

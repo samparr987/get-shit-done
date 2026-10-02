@@ -2,7 +2,15 @@
 
 Scope change (Sam, mid-planning): **session generation, technique points per stroke and a house-drills folder are now IN scope.**
 
-Status: **awaiting Sam's OK before any code is written.**
+Status: **approved and built.** See README.md for how to run it.
+
+Added during the build (Sam's request): the **swimmer-county-analysis skill is built in for each swimmer**:
+- The Lancashire 2027 standards from the skill are seeded (232 times, with the window and conditions notes).
+- `/swimmers/:id/county` is the skill's report, with an age override and a "new swims since" marker.
+- `/swimmers/:id/county.pdf` gives one swimmer's report, and `/county/report.pdf?group=` gives one page per swimmer for a group.
+- `/swimmers/:id/paste` imports a pasted swimmingresults PB page and keeps the official "Converted to SC" figure (`times.conv_sc_hs`), which takes priority over the conversion table.
+- `county_seasons` holds the sheet metadata. The skill's standards JSON can be uploaded on the County times page.
+- The skill's `analyse.py` looks up `str(age)`, so ages 10, 11 and 17+ never match the "10/11" and "17/Ov" columns. Coach Desk stores bands as age..age_max, so they do.
 
 Stack: Node.js + Express + better-sqlite3 + EJS templates, one CSS file, no front-end framework.
 Runs at `http://localhost:4400` via `npm start`. Database: `data/coach-desk.sqlite` (`data/` is gitignored).

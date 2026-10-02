@@ -1,0 +1,49 @@
+<%- include('partials/head') %>
+<h1>Horwich LC ASC · Coach Desk</h1>
+<div class="grid">
+  <div class="card">
+    <div class="muted small"><%= fmtDate(todayIso) %></div>
+    <div class="stat"><%= wn >= 1 ? `Week ${wn}` : 'Pre-season' %></div>
+    <div><strong><%= toCounties > 0 ? `${toCounties} week${toCounties === 1 ? '' : 's'} to Counties` : toCounties === 0 ? 'Counties week!' : 'Counties done' %></strong> <span class="muted small">(Counties = week <%= settings.counties_week %>)</span></div>
+    <% if (week) { %>
+      <p class="small" style="margin:.6em 0 0">
+        <% if (week.mesocycle) { %><strong>Mesocycle:</strong> <%= week.mesocycle %><br><% } %>
+        <% if (week.focus) { %><strong>Focus:</strong> <%= week.focus %><br><% } %>
+        <% if (week.drills) { %><strong>Drill rotation:</strong> <%= week.drills %><br><% } %>
+        <% if (week.holiday) { %><span class="band amber">Holiday / half-term</span><% } %>
+        <% if (!week.mesocycle && !week.focus) { %><span class="muted">Nothing planned for this week yet — <a href="/plan#current">fill in the plan</a>.</span><% } %>
+      </p>
+    <% } %>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Today's sessions</h3>
+    <% if (!sessions.length) { %><p class="muted">No sessions for today.</p><% } %>
+    <ul class="plain"><% for (const s of sessions) { %>
+      <li><a href="/sessions/<%= s.id %>"><strong><%= s.slot %></strong> · <%= s.group_name %></a> <span class="muted small"><%= s.total_m ? `${s.total_m}m` : '' %></span></li>
+    <% } %></ul>
+    <div class="actions"><a class="btn small" href="/sessions/new?date=<%= todayIso %>">New session</a><a class="btn small secondary" href="/sessions">This week</a></div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Galas closing soon</h3>
+    <% if (!closing.length) { %><p class="muted">Nothing closing in the next 3 weeks.</p><% } %>
+    <ul class="plain"><% for (const g of closing) { const d = g.closing_date ? calc.daysBetween(todayIso, g.closing_date) : null; %>
+      <li><a href="/galas/<%= g.id %>"><%= g.name %></a><br>
+        <span class="small"><% if (g.closing_date) { %><span class="band <%= d <= 3 ? 'red' : d <= 7 ? 'amber' : 'none' %>">closes <%= fmtDate(g.closing_date) %> (<%= d === 0 ? 'today' : `${d} day${d === 1 ? '' : 's'}` %>)</span><% } else { %><span class="band amber">closing date not set</span> gala <%= fmtDate(g.start_date) %><% } %></span></li>
+    <% } %></ul>
+    <% if (nextGalas.length) { %><p class="small muted">Next up: <%= nextGalas.map((g) => `${g.name} (${fmtDate(g.start_date)})`).join(' · ') %></p><% } %>
+  </div>
+</div>
+
+<h2>Within <%= settings.amber_threshold_s %> s of a county time <span class="muted small">(<%= settings.county_season %> standards, age at <%= fmtDate(settings.county_age_at) %>)</span></h2>
+<% if (!amber.length) { %><div class="card muted">No one in the amber band yet. Add times or check <a href="/county">the county view</a>.</div><% } else { %>
+<div class="table-wrap"><table>
+  <tr><th>Swimmer</th><th>Event</th><th class="num">Best (SC)</th><th class="num">QT</th><th class="num">Gap</th></tr>
+  <% for (const r of amber) { %>
+  <tr class="amber"><td><a href="/swimmers/<%= r.swimmer.id %>"><%= name(r.swimmer) %></a> <span class="muted small"><%= r.swimmer.sex === 'F' ? 'G' : 'B' %><%= r.age %></span></td>
+    <td><%= r.name %></td><td class="num"><%= fmtTime(r.best.time) %><%= r.best.source === 'LC' ? '*' : '' %></td><td class="num"><%= fmtTime(r.qt) %></td><td class="num"><strong><%= gapText(r.gap) %></strong></td></tr>
+  <% } %>
+</table></div>
+<p class="small muted">* best time is a converted long-course swim.</p>
+<% } %>
+<div class="actions"><a class="btn" href="/times/new">+ Add a time</a><a class="btn secondary" href="/swimmers">Swimmers</a><a class="btn secondary" href="/county">County gaps</a></div>
+<%- include('partials/foot') %>

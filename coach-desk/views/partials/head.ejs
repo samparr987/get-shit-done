@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= title %> · Coach Desk</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<%
+  const links = [['/', 'Home'], ['/swimmers', 'Swimmers'], ['/times', 'Times'], ['/county', 'County'], ['/plan', 'Plan'], ['/sessions', 'Sessions'],
+    ['/galas', 'Galas'], ['/drills', 'Drills'], ['/technique', 'Technique'], ['/library', 'Library'], ['/import', 'Import'], ['/settings', 'Settings']];
+  const on = (href) => href === '/' ? path === '/' : path.startsWith(href) || (href === '/county' && path.startsWith('/conversions'));
+  const toC = Number(settings.counties_week) - currentWeek;
+%>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="/">Coach Desk</a>
+    <span class="wk"><%= currentWeek >= 1 ? `Wk ${currentWeek}` : 'Pre-season' %> · <%= toC > 0 ? `${toC} to Counties` : toC === 0 ? 'Counties week' : 'after Counties' %></span>
+    <nav class="main"><% for (const [h, l] of links) { %><a href="<%= h %>" class="<%= on(h) ? 'on' : '' %>"><%= l %></a><% } %></nav>
+    <details class="menu"><summary>☰ Menu</summary><nav><% for (const [h, l] of links) { %><a href="<%= h %>" class="<%= on(h) ? 'on' : '' %>"><%= l %></a><% } %></nav></details>
+  </div>
+</header>
+<main>
+<% if (msg) { %><div class="flash"><%= msg %></div><% } %>

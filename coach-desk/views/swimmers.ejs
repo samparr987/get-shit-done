@@ -1,0 +1,21 @@
+<%- include('partials/head') %>
+<h1>Swimmers <span class="muted small">(<%= rows.length %>)</span></h1>
+<form class="filters" method="get">
+  <label>Search<input type="search" name="q" value="<%= query.q || '' %>" placeholder="Name"></label>
+  <label>Group<select name="group"><option value="">All</option><% for (const g of [...calc.GROUPS, '(none)']) { %><option <%= query.group === g ? 'selected' : '' %>><%= g %></option><% } %></select></label>
+  <label>Sex<select name="sex"><option value="">All</option><option value="F" <%= query.sex === 'F' ? 'selected' : '' %>>Girls</option><option value="M" <%= query.sex === 'M' ? 'selected' : '' %>>Boys</option></select></label>
+  <label>Status<select name="active"><option value="1">Active</option><option value="0" <%= query.active === '0' ? 'selected' : '' %>>Inactive</option><option value="all" <%= query.active === 'all' ? 'selected' : '' %>>All</option></select></label>
+  <button class="small">Filter</button>
+</form>
+<div class="actions"><a class="btn" href="/swimmers/new">+ Add swimmer</a><a class="btn secondary" href="/import/swimmers">Import member export</a><%- include('partials/csv') %></div>
+<div class="table-wrap"><table>
+  <tr><th>Name</th><th class="num">Age</th><th class="num">Age 31 Dec <%= year %></th><th>Sex</th><th>Group</th><th class="hide-sm">SE ID</th><th class="hide-sm">Other club</th></tr>
+  <% for (const r of rows) { %>
+  <tr><td><a href="/swimmers/<%= r.id %>"><%= r.last_name %>, <%= r.first_name %></a></td>
+    <td class="num"><%= calc.ageOn(r.dob, todayIso) %></td><td class="num"><%= calc.ageAt31Dec(r.dob, year) %></td><td><%= r.sex %></td>
+    <td><%= r.group_name || '—' %> <% if (r.group_locked) { %><span class="lock" title="Set by you — imports will not change it">🔒</span><% } %></td>
+    <td class="hide-sm"><%= r.se_id || '' %></td><td class="hide-sm"><%= r.other_club || '' %><%= r.bolton_metro ? (r.other_club ? ' · ' : '') + 'Bolton Metro' : '' %></td></tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="7" class="muted">No swimmers match. <a href="/import/swimmers">Import your member export</a> or add one.</td></tr><% } %>
+</table></div>
+<%- include('partials/foot') %>

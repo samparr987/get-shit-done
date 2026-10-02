@@ -1,0 +1,20 @@
+<%- include('partials/head') %>
+<h1>Drills folder <span class="muted small">(<%= rows.length %>)</span></h1>
+<form class="filters" method="get">
+  <label>Search<input type="search" name="q" value="<%= query.q || '' %>"></label>
+  <label>Stroke<select name="stroke"><option value="">All</option><% for (const s of calc.TECH_STROKES) { %><option <%= query.stroke === s ? 'selected' : '' %>><%= s %></option><% } %></select></label>
+  <label>Category<select name="category"><option value="">All</option><% for (const c of cats) { %><option <%= query.category === c ? 'selected' : '' %>><%= c %></option><% } %></select></label>
+  <label>Rotation<select name="rotation"><option value="">All</option><% for (const r of rots) { %><option <%= query.rotation === r ? 'selected' : '' %>><%= r %></option><% } %></select></label>
+  <label>Group<select name="group"><option value="">All</option><% for (const g of calc.GROUPS) { %><option <%= query.group === g ? 'selected' : '' %>><%= g %></option><% } %></select></label>
+  <button class="small">Filter</button>
+</form>
+<div class="actions"><a class="btn" href="/drills/new">+ Add drill</a><a class="btn secondary" href="/import/drills">Import house drills</a><%- include('partials/csv') %></div>
+<div class="table-wrap"><table>
+  <tr><th>Drill</th><th>Stroke</th><th>Category</th><th>Rotation</th><th class="hide-sm">Groups</th><th class="hide-sm">Equipment</th><th class="num">Used</th></tr>
+  <% for (const d of rows) { %>
+  <tr class="<%= d.active ? '' : 'muted' %>"><td><a href="/drills/<%= d.id %>"><%= d.name %></a></td><td><%= d.stroke %></td><td><%= d.category || '' %></td><td><%= d.rotation || '' %></td>
+    <td class="hide-sm small"><%= d.groups || 'any' %></td><td class="hide-sm small"><%= d.equipment || '' %></td><td class="num"><%= d.used %></td></tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="7" class="muted">No drills yet. <a href="/import/drills">Import your house drills</a> (CSV/XLSX: name, stroke, category, description, equipment, groups, rotation) or add them one by one.</td></tr><% } %>
+</table></div>
+<%- include('partials/foot') %>

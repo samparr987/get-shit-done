@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= title %></title>
+<style>
+  @page { size: A4; margin: 14mm; }
+  body { font: 15px/1.4 system-ui, "Segoe UI", sans-serif; color: #111; margin: 0 auto; max-width: 180mm; padding: 12px; background: #fff; }
+  header { border-bottom: 2px solid #1a2a4a; padding-bottom: 6px; margin-bottom: 10px; }
+  h1 { margin: 0; font-size: 22px; } .meta { color: #444; font-size: 14px; }
+  pre { white-space: pre-wrap; font: 17px/1.5 ui-monospace, Consolas, monospace; margin: 0; }
+  .foot { margin-top: 12px; border-top: 1px solid #bbb; padding-top: 6px; font-size: 14px; }
+  .no-print { margin-bottom: 12px; } @media print { .no-print { display: none; } body { padding: 0; } }
+</style></head>
+<body>
+<div class="no-print"><button onclick="window.print()">Print</button> <a href="/sessions/<%= sess.id %>">← Back</a></div>
+<header>
+  <h1><%= sess.slot %> · <%= sess.group_name %> — <%= fmtDate(sess.date) %></h1>
+  <div class="meta"><% if (plan) { %>Week <%= plan.week_no %> · <%= Number(settings.counties_week) - plan.week_no %> to Counties<%= plan.mesocycle ? ` · ${plan.mesocycle}` : '' %><%= plan.focus ? ` · ${plan.focus}` : '' %><%= plan.drills ? ` · drills ${plan.drills}` : '' %><% } %><%= sess.total_m ? ` · ${sess.total_m}m` : '' %></div>
+</header>
+<pre><%= sess.sets || '' %></pre>
+<div class="foot"><strong>Total: <%= sess.total_m ? `${sess.total_m}m` : '—' %></strong><% if (sess.notes) { %><div style="white-space:pre-wrap;margin-top:4px">Notes: <%= sess.notes %></div><% } %></div>
+</body></html>

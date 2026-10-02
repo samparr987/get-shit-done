@@ -1,0 +1,13 @@
+<%- include('partials/head') %>
+<h1>Galas</h1>
+<div class="actions"><a class="btn" href="/galas/new">+ Add gala</a><%- include('partials/csv') %></div>
+<div class="table-wrap"><table>
+  <tr><th>Gala</th><th>Dates</th><th>Course</th><th>Entries close</th><th class="hide-sm">Venue</th><th class="num">Entries</th></tr>
+  <% for (const g of rows) { const past = g.end_date < todayIso; const d = g.closing_date ? calc.daysBetween(todayIso, g.closing_date) : null; %>
+  <tr class="<%= past ? 'muted' : '' %>"><td><a href="/galas/<%= g.id %>"><%= g.name %></a></td>
+    <td class="nowrap"><%= fmtDate(g.start_date) %><%= g.end_date !== g.start_date ? ` – ${fmtDate(g.end_date)}` : '' %></td><td><%= g.course || '?' %></td>
+    <td class="nowrap"><% if (!g.closing_date) { %><span class="muted">not set</span><% } else if (past) { %><%= fmtDate(g.closing_date) %><% } else { %><span class="band <%= d < 0 ? 'red' : d <= 7 ? 'amber' : 'none' %>"><%= fmtDate(g.closing_date) %><%= d < 0 ? ' (closed)' : '' %></span><% } %></td>
+    <td class="hide-sm"><%= g.venue || '' %></td><td class="num"><%= g.n %></td></tr>
+  <% } %>
+</table></div>
+<%- include('partials/foot') %>

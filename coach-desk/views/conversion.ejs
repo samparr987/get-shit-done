@@ -1,0 +1,21 @@
+<%- include('partials/head') %>
+<h1>Conversion table</h1>
+<form method="post" action="/conversions/<%= table.id %>">
+  <div class="card form-grid">
+    <label><span>Name</span><input type="text" name="name" value="<%= table.name %>"></label>
+    <label><span>Notes</span><input type="text" name="notes" value="<%= table.notes || '' %>"></label>
+  </div>
+  <p class="small muted">SC = LC × factor − offset (s). “Both” applies to everyone; fill Girls/Boys only where they differ (blank = use Both).</p>
+  <div class="table-wrap"><table>
+    <tr><th>Event</th><th>Both: factor</th><th>offset s</th><th>Girls: factor</th><th>offset</th><th>Boys: factor</th><th>offset</th></tr>
+    <% for (const e of grid) { %>
+    <tr><td class="nowrap"><%= e.name %></td>
+      <% for (const sx of ['X', 'F', 'M']) { const f = e[sx]; %>
+      <td><input type="number" step="0.0001" name="f[<%= e.key %>][<%= sx %>][factor]" value="<%= f ? f.factor : '' %>" style="width:95px"></td>
+      <td><input type="number" step="0.01" name="f[<%= e.key %>][<%= sx %>][offset]" value="<%= f ? f.offset_s : '' %>" style="width:80px"></td>
+      <% } %></tr>
+    <% } %>
+  </table></div>
+  <div class="actions"><button>Save</button><a class="btn secondary" href="/conversions">Back</a></div>
+</form>
+<%- include('partials/foot') %>

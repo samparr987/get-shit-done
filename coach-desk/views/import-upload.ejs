@@ -1,0 +1,14 @@
+<%- include('partials/head') %>
+<h1><%= title %></h1>
+<% if (error) { %><div class="errors"><%= error %></div><% } %>
+<form method="post" enctype="multipart/form-data" class="card">
+  <label class="field"><span>File (.csv or .xlsx — first sheet is read)</span><input type="file" name="file" accept=".csv,.xlsx,.txt" required></label>
+  <% if (key === 'county') { %><label class="field"><span>Season label</span><input type="text" name="season" value="<%= settings.county_season %>" style="max-width:140px"></label><% } %>
+  <div class="actions"><button>Upload &amp; preview</button><a class="btn secondary" href="/import">Back</a></div>
+</form>
+<div class="card small"><strong>Columns it understands:</strong>
+  <ul><% for (const f of kind.fields) { %><li><%= f.label %><%= f.required ? ' (required)' : '' %></li><% } %></ul>
+  <% if (key === 'swimmers') { %><p>Matched to existing swimmers by Swim England ID, then by name + date of birth. <strong>Groups you've set by hand (🔒) are never overwritten.</strong></p><% } %>
+  <% if (key === 'times') { %><p>Swimmers are matched by Swim England ID, or by full name. Duplicate swims are skipped.</p><% } %>
+</div>
+<%- include('partials/foot') %>

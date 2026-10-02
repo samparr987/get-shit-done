@@ -1,0 +1,27 @@
+<%- include('partials/head') %>
+<h1>Paste PBs from swimmingresults — <%= name(sw) %></h1>
+<div class="card small">
+  <ol style="margin:0;padding-left:1.2em">
+    <li>Open <% if (srUrl) { %><a href="<%= srUrl %>" target="_blank" rel="noopener"><%= sw.first_name %>'s personal-best page ↗</a><% } else { %>the swimmer's personal-best page on swimmingresults.org (add their Swim England ID to get a direct link)<% } %>.</li>
+    <li>Select from the <strong>Long Course</strong> heading down to the end of the <strong>Short Course</strong> table, copy, and paste below.</li>
+    <li>Check the preview, then save. Times already stored are skipped; the site's “Converted” figure is kept for LC swims.</li>
+  </ol>
+</div>
+<form method="post" class="card">
+  <label class="field"><span>Pasted text</span><textarea name="text" style="min-height:200px;font-family:ui-monospace,Consolas,monospace;font-size:13px"><%= text %></textarea></label>
+  <div class="actions"><button name="preview" value="1">Preview</button>
+  <% if (parsed && parsed.rows.length) { %><button name="confirm" value="1">Save <%= parsed.rows.filter((r) => r.isNew).length %> new time(s)</button><% } %>
+  <a class="btn secondary" href="/swimmers/<%= sw.id %>">Cancel</a></div>
+</form>
+<% if (parsed) { %>
+  <% if (parsed.problems.length) { %><div class="warn"><strong>Lines not understood:</strong><br><%- parsed.problems.map((p) => p.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' })[c])).join('<br>') %></div><% } %>
+  <div class="table-wrap"><table>
+    <tr><th>Event</th><th>Course</th><th class="num">Time</th><th class="num">Converted to SC</th><th>Date</th><th>Meet</th><th></th></tr>
+    <% for (const r of parsed.rows) { %>
+    <tr class="<%= r.isPb && r.isNew ? 'green' : '' %>"><td><%= eventName(r.event) %></td><td><%= r.course %></td><td class="num"><%= fmtTime(r.time_hs) %></td><td class="num"><%= fmtTime(r.conv_sc_hs) %></td>
+      <td class="nowrap"><%= fmtDate(r.swum_on) %></td><td><%= r.meet || '' %></td><td class="small"><%= !r.isNew ? 'already stored' : r.isPb ? 'new PB' : 'new' %></td></tr>
+    <% } %>
+    <% if (!parsed.rows.length) { %><tr><td colspan="7" class="muted">No times found. Make sure the “Long Course” / “Short Course” headings are included in what you copy.</td></tr><% } %>
+  </table></div>
+<% } %>
+<%- include('partials/foot') %>

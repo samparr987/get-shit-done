@@ -1,0 +1,33 @@
+<%- include('partials/head') %>
+<h1><%= title %></h1>
+<p class="muted small"><%= p.filename %> · <%= p.rows.length %> rows<%= saved ? ' · using the mapping you saved last time' : '' %></p>
+<% if (p.ignored.length) { %><div class="warn small"><strong>Ignored (personal data, not stored):</strong> <%= p.ignored.join(', ') %></div><% } %>
+<form method="get" action="/import/<%= key %>/map" class="card">
+  <input type="hidden" name="token" value="<%= token %>">
+  <strong>Match columns</strong>
+  <div class="form-grid" style="margin-top:8px">
+    <% for (const f of kind.fields) { %>
+    <label><span><%= f.label %><%= f.required ? ' *' : '' %></span><select name="m[<%= f.key %>]"><option value="">— not in file —</option><% for (const h of p.headers) { %><option <%= map[f.key] === h ? 'selected' : '' %>><%= h %></option><% } %></select></label>
+    <% } %>
+  </div>
+  <div class="actions"><button class="secondary">Update preview</button></div>
+</form>
+<% if (missing.length) { %><div class="errors">Still needed: <%= missing.join(', ') %></div><% } %>
+<h2>Preview (first <%= preview.length %> rows as they'll be saved)</h2>
+<div class="table-wrap"><table>
+  <tr><th>#</th><% for (const f of kind.fields) { if (!map[f.key]) continue; %><th><%= f.label %></th><% } %><th>Problems</th></tr>
+  <% preview.forEach((r, i) => { %>
+  <tr class="<%= r.errors.length ? '' : 'green' %>"><td><%= i + 2 %></td>
+    <% for (const f of kind.fields) { if (!map[f.key]) continue; let v = r.value[f.key]; if (f.key === 'time') v = fmtTime(r.value.time_hs); if (f.key === 'conv_sc') v = fmtTime(r.value.conv_sc_hs); if (f.key === 'event' && v) v = eventName(v); if (f.key === 'age' && r.value.age != null) v = r.value.age_max == null ? r.value.age : r.value.age_max >= 99 ? `${r.value.age}+` : `${r.value.age}-${r.value.age_max}`; if (f.key === 'date') v = r.value.swum_on; if (f.key === 'full_name' && key === 'swimmers') v = `${r.value.first_name || ''} ${r.value.last_name || ''}`; if (typeof v === 'boolean') v = v ? 'Y' : ''; %>
+    <td><%= v == null ? '' : v %></td><% } %>
+    <td class="small" style="color:var(--red)"><%= [...r.errors, ...r.warnings].join('; ') %></td></tr>
+  <% }) %>
+</table></div>
+<form method="post" action="/import/<%= key %>/confirm" class="actions">
+  <input type="hidden" name="token" value="<%= token %>">
+  <% for (const [k, v] of Object.entries(map)) { %><input type="hidden" name="m[<%= k %>]" value="<%= v %>"><% } %>
+  <button <%= missing.length ? 'disabled' : '' %>>Import <%= p.rows.length - allErrors %> row(s)</button>
+  <% if (allErrors) { %><span class="small" style="color:var(--red)"><%= allErrors %> row(s) with problems will be skipped</span><% } %>
+  <a class="btn secondary" href="/import/<%= key %>">Start again</a>
+</form>
+<%- include('partials/foot') %>

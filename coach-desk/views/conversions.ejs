@@ -1,0 +1,21 @@
+<%- include('partials/head') %>
+<h1>LC → SC conversion tables</h1>
+<p class="small muted">Used when a long-course swim has no official “Converted to SC” figure. SC = LC × factor − offset (seconds). The active table is used everywhere.</p>
+<div class="table-wrap"><table>
+  <tr><th>Name</th><th>Rows</th><th>Notes</th><th></th></tr>
+  <% for (const t of tables) { const active = String(t.id) === settings.active_conversion_table_id; %>
+  <tr class="<%= active ? 'current' : '' %>"><td><a href="/conversions/<%= t.id %>"><%= t.name %></a> <% if (active) { %><span class="band green">active</span><% } %></td><td><%= t.n %></td><td class="small"><%= t.notes || '' %></td>
+    <td class="nowrap"><% if (!active) { %><form class="inline" method="post" action="/conversions/<%= t.id %>/activate"><button class="small">Make active</button></form>
+      <form class="inline" method="post" action="/conversions/<%= t.id %>/delete" onsubmit="return confirm('Delete this table?')"><button class="small danger">Delete</button></form><% } %></td></tr>
+  <% } %>
+</table></div>
+<form method="post" action="/conversions" class="card">
+  <strong>New table</strong>
+  <div class="form-grid" style="margin-top:8px">
+    <label><span>Name</span><input type="text" name="name" required></label>
+    <label><span>Start from</span><select name="copy_from"><option value="">All factors 1.0</option><% for (const t of tables) { %><option value="<%= t.id %>">Copy of <%= t.name %></option><% } %></select></label>
+    <label><span>Notes</span><input type="text" name="notes"></label>
+  </div>
+  <div class="actions"><button>Create</button></div>
+</form>
+<%- include('partials/foot') %>
